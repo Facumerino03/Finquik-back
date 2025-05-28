@@ -1,4 +1,4 @@
-package com.example.finquik;
+package com.finquik;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
