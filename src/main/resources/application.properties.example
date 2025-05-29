@@ -1,0 +1,24 @@
+# ===================================================================
+# EXAMPLE CONFIGURATION - Finquik App
+# ===================================================================
+# Copy this file to 'application.properties' (which should be in .gitignore)
+# and replace the placeholder values with your actual configuration.
+
+spring.application.name=Finquik
+
+# ----------------------------------------
+# POSTGRESQL DATASOURCE CONFIGURATION
+# ----------------------------------------
+# Replace placeholders with your actual PostgreSQL connection details.
+spring.datasource.url=jdbc:postgresql://<YOUR_DB_HOST>:<YOUR_DB_PORT>/<YOUR_DB_NAME>
+spring.datasource.username=<YOUR_DB_USERNAME>
+spring.datasource.password=<YOUR_DB_PASSWORD>
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# ----------------------------------------
+# JPA / HIBERNATE CONFIGURATION
+# ----------------------------------------
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
