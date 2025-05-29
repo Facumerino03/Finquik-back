@@ -1,0 +1,44 @@
+package com.finquik.services;
+
+import com.finquik.DTOs.UserRegistrationRequest;
+import com.finquik.DTOs.UserResponse;
+import com.finquik.models.User;
+import com.finquik.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    @Transactional
+    public UserResponse registerUser(UserRegistrationRequest registrationRequest) {
+
+        if (userRepository.existsByEmail(registrationRequest.getEmail())) {
+            throw new RuntimeException("Error: Email is already taken!");
+        }
+
+        User user = User.builder()
+                .firstName(registrationRequest.getFirstName())
+                .lastName(registrationRequest.getLastName())
+                .email(registrationRequest.getEmail())
+                .password(passwordEncoder.encode(registrationRequest.getPassword()))
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        return UserResponse.builder()
+                .id(savedUser.getId())
+                .firstName(savedUser.getFirstName())
+                .lastName(savedUser.getLastName())
+                .email(savedUser.getEmail())
+                .createdAt(savedUser.getCreatedAt())
+                .build();
+    }
+}
