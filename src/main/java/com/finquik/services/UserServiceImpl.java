@@ -2,6 +2,7 @@ package com.finquik.services;
 
 import com.finquik.DTOs.UserRegistrationRequest;
 import com.finquik.DTOs.UserResponse;
+import com.finquik.common.exceptions.EmailAlreadyExistsException;
 import com.finquik.models.User;
 import com.finquik.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse registerUser(UserRegistrationRequest registrationRequest) {
 
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
-            throw new RuntimeException("Error: Email is already taken!");
+            throw new EmailAlreadyExistsException("Error: Email '" + registrationRequest.getEmail() + "' is already taken!");
         }
 
         User user = User.builder()
