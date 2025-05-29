@@ -22,3 +22,9 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
+
+# ----------------------------------------
+# JWT CONFIGURATION
+# ----------------------------------------
+app.jwt.secret=<YOUR_VERY_STRONG_AND_SECRET_JWT_KEY_HERE>
+app.jwt.expiration-ms=3600000
