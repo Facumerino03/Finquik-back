@@ -24,6 +24,20 @@ updatedAt: Date
 
 }
 
+class Category {
+id: int
+name: String
+type: Enum - CategoryType
+user: User
+createdAt: Date
+updatedAt: Date
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
 enum AccountType {
   CASH
   CHECKING
@@ -35,7 +49,14 @@ enum AccountType {
 ' One User can have many (*) Accounts
 User "1" -- "*" Account
 
+' Defines a one-to-many relationship
+' One User can have many (*) Categories
+User "1" -- "*" Category
+
 ' Defines the relationship between Account and its type
 Account -- AccountType
+
+' Defines the relationship between Category and its type
+Category -- CategoryType
 
 @enduml
