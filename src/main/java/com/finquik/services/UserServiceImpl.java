@@ -4,6 +4,9 @@ import com.finquik.DTOs.UserRegistrationRequest;
 import com.finquik.DTOs.UserResponse;
 import com.finquik.common.exceptions.EmailAlreadyExistsException;
 import com.finquik.models.User;
+import com.finquik.models.Category;
+import com.finquik.models.CategoryType;
+import com.finquik.repositories.CategoryRepository;
 import com.finquik.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +20,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
 
     @Override
     @Transactional
@@ -34,6 +38,9 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
+
+        // creates default categories (one for income and one for expenses) for the new user
+        createDefaultCategoriesForUser(savedUser);
 
         return UserResponse.builder()
                 .id(savedUser.getId())
@@ -57,5 +64,23 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
                 .build();
+    }
+
+    // Auxiliary method to create default categories for a new user
+    private void createDefaultCategoriesForUser(User user) {
+        Category uncategorizedExpense = Category.builder()
+                .name("Uncategorized")
+                .type(CategoryType.EXPENSE)
+                .user(user)
+                .build();
+
+        Category uncategorizedIncome = Category.builder()
+                .name("Uncategorized")
+                .type(CategoryType.INCOME)
+                .user(user)
+                .build();
+
+        categoryRepository.save(uncategorizedExpense);
+        categoryRepository.save(uncategorizedIncome);
     }
 }
