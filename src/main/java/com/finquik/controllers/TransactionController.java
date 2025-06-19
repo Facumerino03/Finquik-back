@@ -2,14 +2,17 @@ package com.finquik.controllers;
 
 import com.finquik.DTOs.TransactionRequest;
 import com.finquik.DTOs.TransactionResponse;
+import com.finquik.models.CategoryType;
 import com.finquik.services.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -30,9 +33,18 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> getUserTransactions(Authentication authentication) {
+    public ResponseEntity<List<TransactionResponse>> getUserTransactions(
+            Authentication authentication,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Long accountId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) CategoryType type) {
+
         String userEmail = authentication.getName();
-        List<TransactionResponse> transactions = transactionService.getTransactionsByUser(userEmail);
+        List<TransactionResponse> transactions = transactionService.getTransactions(
+                userEmail, startDate, endDate, accountId, categoryId, type);
+
         return ResponseEntity.ok(transactions);
     }
 

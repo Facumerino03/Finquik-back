@@ -10,11 +10,15 @@ import com.finquik.repositories.AccountRepository;
 import com.finquik.repositories.CategoryRepository;
 import com.finquik.repositories.TransactionRepository;
 import com.finquik.repositories.UserRepository;
+import com.finquik.repositories.specifications.TransactionSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,12 +71,37 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TransactionResponse> getTransactionsByUser(String userEmail) {
+    public List<TransactionResponse> getTransactions(String userEmail, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
 
-        List<Transaction> transactions = transactionRepository.findByUserOrderByTransactionDateDesc(user);
+        // 1. Base specification: always filter by user.
+        Specification<Transaction> spec = TransactionSpecification.hasUser(user);
 
+        // 2. Additional filters based on the provided parameters conditionally.
+        if (startDate != null) {
+            spec = spec.and(TransactionSpecification.isAfterOrEqualTo(startDate));
+        }
+        if (endDate != null) {
+            spec = spec.and(TransactionSpecification.isBeforeOrEqualTo(endDate));
+        }
+        if (accountId != null) {
+            spec = spec.and(TransactionSpecification.hasAccountId(accountId));
+        }
+        if (categoryId != null) {
+            spec = spec.and(TransactionSpecification.hasCategoryId(categoryId));
+        }
+        if (type != null) {
+            spec = spec.and(TransactionSpecification.hasType(type));
+        }
+
+        // 3. Define the sorting criteria.
+        Sort sort = Sort.by(Sort.Direction.DESC, "transactionDate");
+
+        // 4. Execute the query with the combined specification and sorting.
+        List<Transaction> transactions = transactionRepository.findAll(spec, sort);
+
+        // 5. Map to the response DTO.
         return transactions.stream()
                 .map(this::mapToTransactionResponse)
                 .collect(Collectors.toList());

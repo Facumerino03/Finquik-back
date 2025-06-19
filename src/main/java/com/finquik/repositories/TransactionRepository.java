@@ -4,6 +4,7 @@ import com.finquik.models.Account;
 import com.finquik.models.Transaction;
 import com.finquik.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Optional;
  * Repository interface for Transaction entities.
  */
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
 
     /**
      * Finds all transactions belonging to a specific user, ordered by transaction date descending.

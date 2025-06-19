@@ -2,7 +2,9 @@ package com.finquik.services;
 
 import com.finquik.DTOs.TransactionRequest;
 import com.finquik.DTOs.TransactionResponse;
+import com.finquik.models.CategoryType;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TransactionService {
@@ -17,12 +19,17 @@ public interface TransactionService {
     TransactionResponse createTransaction(TransactionRequest transactionRequest, String userEmail);
 
     /**
-     * Retrieves all transactions for the authenticated user.
+     * Retrieves a list of transactions for the authenticated user, applying optional filters.
      *
      * @param userEmail The email of the authenticated user.
-     * @return A list of all transactions belonging to the user, ordered by date.
+     * @param startDate Optional start date for the filter range.
+     * @param endDate Optional end date for the filter range.
+     * @param accountId Optional account ID to filter by.
+     * @param categoryId Optional category ID to filter by.
+     * @param type Optional transaction type (INCOME or EXPENSE) to filter by.
+     * @return A filtered and sorted list of transaction information.
      */
-    List<TransactionResponse> getTransactionsByUser(String userEmail);
+    List<TransactionResponse> getTransactions(String userEmail, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type);
 
     /**
      * Retrieves a single transaction by its ID, ensuring it belongs to the authenticated user.
