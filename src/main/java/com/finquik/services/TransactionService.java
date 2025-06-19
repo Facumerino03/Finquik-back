@@ -24,5 +24,14 @@ public interface TransactionService {
      */
     List<TransactionResponse> getTransactionsByUser(String userEmail);
 
+    /**
+     * Retrieves a single transaction by its ID, ensuring it belongs to the authenticated user.
+     *
+     * @param transactionId The ID of the transaction to retrieve.
+     * @param userEmail The email of the authenticated user.
+     * @return The transaction information.
+     */
+    TransactionResponse getTransactionById(Long transactionId, String userEmail);
+
     //TODO: methods for getById, update, and delete transactions will be added later to focus on the main logic.
 }

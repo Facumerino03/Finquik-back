@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for Transaction entities.
@@ -30,5 +31,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
      */
     List<Transaction> findByAccount(Account account);
 
+    /**
+     * Finds a specific transaction by its ID and the user who owns it.
+     *
+     * @param id The ID of the transaction.
+     * @param user The user owner.
+     * @return an {@link Optional} containing the transaction if found and owned by the user.
+     */
+    Optional<Transaction> findByIdAndUser(Long id, User user);
     //TODO: add complex methods for future features
 }

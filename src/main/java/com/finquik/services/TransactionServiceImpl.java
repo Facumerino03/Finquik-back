@@ -78,6 +78,18 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public TransactionResponse getTransactionById(Long transactionId, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+
+        Transaction transaction = transactionRepository.findByIdAndUser(transactionId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction", "id", transactionId));
+
+        return mapToTransactionResponse(transaction);
+    }
+
     // Auxiliary methods to map the entity to the response DTO
     private TransactionResponse mapToTransactionResponse(Transaction transaction) {
         AccountResponse accountResponse = AccountResponse.builder()

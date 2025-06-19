@@ -35,4 +35,14 @@ public class TransactionController {
         List<TransactionResponse> transactions = transactionService.getTransactionsByUser(userEmail);
         return ResponseEntity.ok(transactions);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionResponse> getTransactionById(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String userEmail = authentication.getName();
+        TransactionResponse transaction = transactionService.getTransactionById(id, userEmail);
+        return ResponseEntity.ok(transaction);
+    }
 }
