@@ -12,15 +12,14 @@ import com.finquik.repositories.TransactionRepository;
 import com.finquik.repositories.UserRepository;
 import com.finquik.repositories.specifications.TransactionSpecification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,14 +70,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TransactionResponse> getTransactions(String userEmail, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type) {
+    public Page<TransactionResponse> getTransactions(String userEmail, Pageable pageable, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
 
-        // 1. Base specification: always filter by user.
+        // 1. La construcción de la especificación dinámica es la misma
         Specification<Transaction> spec = TransactionSpecification.hasUser(user);
-
-        // 2. Additional filters based on the provided parameters conditionally.
         if (startDate != null) {
             spec = spec.and(TransactionSpecification.isAfterOrEqualTo(startDate));
         }
@@ -95,16 +92,11 @@ public class TransactionServiceImpl implements TransactionService {
             spec = spec.and(TransactionSpecification.hasType(type));
         }
 
-        // 3. Define the sorting criteria.
-        Sort sort = Sort.by(Sort.Direction.DESC, "transactionDate");
+        // 2. Ejecutamos la consulta paginada del repositorio
+        Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
-        // 4. Execute the query with the combined specification and sorting.
-        List<Transaction> transactions = transactionRepository.findAll(spec, sort);
-
-        // 5. Map to the response DTO.
-        return transactions.stream()
-                .map(this::mapToTransactionResponse)
-                .collect(Collectors.toList());
+        // 3. Mapeamos el contenido de la página a nuestro DTO de respuesta
+        return transactionPage.map(this::mapToTransactionResponse);
     }
 
     @Override
