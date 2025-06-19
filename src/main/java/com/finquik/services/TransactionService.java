@@ -33,5 +33,15 @@ public interface TransactionService {
      */
     TransactionResponse getTransactionById(Long transactionId, String userEmail);
 
+    /**
+     * Updates an existing transaction and recalculates the corresponding account balance.
+     *
+     * @param transactionId The ID of the transaction to update.
+     * @param transactionRequest DTO with the new transaction details.
+     * @param userEmail The email of the authenticated user.
+     * @return The updated transaction information.
+     */
+    TransactionResponse updateTransaction(Long transactionId, TransactionRequest transactionRequest, String userEmail);
+
     //TODO: methods for getById, update, and delete transactions will be added later to focus on the main logic.
 }

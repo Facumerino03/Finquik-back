@@ -90,6 +90,59 @@ public class TransactionServiceImpl implements TransactionService {
         return mapToTransactionResponse(transaction);
     }
 
+    @Override
+    @Transactional
+    public TransactionResponse updateTransaction(Long transactionId, TransactionRequest transactionRequest, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+
+        Transaction transactionToUpdate = transactionRepository.findByIdAndUser(transactionId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction", "id", transactionId));
+
+        Account originalAccount = transactionToUpdate.getAccount();
+        BigDecimal originalAmount = transactionToUpdate.getAmount();
+        CategoryType originalType = transactionToUpdate.getCategory().getType();
+
+        // 1. Revert the impact of the original transaction on the account balance.
+        if (originalType == CategoryType.INCOME) {
+            originalAccount.setCurrentBalance(originalAccount.getCurrentBalance().subtract(originalAmount));
+        } else { // EXPENSE
+            originalAccount.setCurrentBalance(originalAccount.getCurrentBalance().add(originalAmount));
+        }
+
+        // 2. Obtain the new account and category entities safely.
+        Account targetAccount = accountRepository.findByIdAndUser(transactionRequest.getAccountId(), user)
+                .orElseThrow(() -> new ResourceNotFoundException("Account", "id", transactionRequest.getAccountId()));
+        Category targetCategory = categoryRepository.findByIdAndUser(transactionRequest.getCategoryId(), user)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", transactionRequest.getCategoryId()));
+
+        // If the account has changed, we need to save the original account with its reverted balance.
+        if (!originalAccount.getId().equals(targetAccount.getId())) {
+            accountRepository.save(originalAccount);
+        }
+
+        // 3. Update the transaction with the new data.
+        transactionToUpdate.setAmount(transactionRequest.getAmount());
+        transactionToUpdate.setDescription(transactionRequest.getDescription());
+        transactionToUpdate.setTransactionDate(transactionRequest.getTransactionDate());
+        transactionToUpdate.setAccount(targetAccount);
+        transactionToUpdate.setCategory(targetCategory);
+
+        // 4. Apply the new impact on the target account balance.
+        BigDecimal newAmount = transactionToUpdate.getAmount();
+        if (targetCategory.getType() == CategoryType.INCOME) {
+            targetAccount.setCurrentBalance(targetAccount.getCurrentBalance().add(newAmount));
+        } else { // EXPENSE
+            targetAccount.setCurrentBalance(targetAccount.getCurrentBalance().subtract(newAmount));
+        }
+        accountRepository.save(targetAccount);
+
+        // 5. Save the updated transaction
+        Transaction updatedTransaction = transactionRepository.save(transactionToUpdate);
+
+        return mapToTransactionResponse(updatedTransaction);
+    }
+
     // Auxiliary methods to map the entity to the response DTO
     private TransactionResponse mapToTransactionResponse(Transaction transaction) {
         AccountResponse accountResponse = AccountResponse.builder()

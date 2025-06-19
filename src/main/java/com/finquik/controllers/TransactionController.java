@@ -45,4 +45,15 @@ public class TransactionController {
         TransactionResponse transaction = transactionService.getTransactionById(id, userEmail);
         return ResponseEntity.ok(transaction);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TransactionResponse> updateTransaction(
+            @PathVariable Long id,
+            @Valid @RequestBody TransactionRequest transactionRequest,
+            Authentication authentication) {
+
+        String userEmail = authentication.getName();
+        TransactionResponse updatedTransaction = transactionService.updateTransaction(id, transactionRequest, userEmail);
+        return ResponseEntity.ok(updatedTransaction);
+    }
 }
