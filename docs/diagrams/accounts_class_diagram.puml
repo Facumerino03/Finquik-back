@@ -1,0 +1,41 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Account {
+id: int
+name: String
+type: Enum - AccountType
+initialBalance: BigDecimal
+currentBalance: BigDecimal
+currency: String
+createdAt: Date
+updatedAt: Date
+User: user
+}
+
+class User {
+id: int
+firstName: String
+lastName: String
+email: String
+password: String
+createdAt: Date
+updatedAt: Date
+
+}
+
+enum AccountType {
+  CASH
+  CHECKING
+  CREDIT_CARD
+  INVESTMENT
+}
+
+' Defines a one-to-many relationship
+' One User can have many (*) Accounts
+User "1" -- "*" Account
+
+' Defines the relationship between Account and its type
+Account -- AccountType
+
+@enduml

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.finquik.common.exceptions.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,21 @@ public class UserServiceImpl implements UserService {
                 .lastName(savedUser.getLastName())
                 .email(savedUser.getEmail())
                 .createdAt(savedUser.getCreatedAt())
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }

@@ -5,4 +5,6 @@ import com.finquik.DTOs.UserResponse;
 
 public interface UserService {
     UserResponse registerUser(UserRegistrationRequest registrationRequest);
+
+    UserResponse getUserByEmail(String email);
 }
