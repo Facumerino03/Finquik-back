@@ -45,4 +45,25 @@ public class AccountController {
         AccountResponse account = accountService.getAccountById(id, userEmail);
         return ResponseEntity.ok(account);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AccountResponse> updateAccount(
+            @PathVariable Long id,
+            @Valid @RequestBody AccountRequest accountRequest,
+            Authentication authentication) {
+
+        String userEmail = authentication.getName();
+        AccountResponse updatedAccount = accountService.updateAccount(id, accountRequest, userEmail);
+        return ResponseEntity.ok(updatedAccount);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAccount(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String userEmail = authentication.getName();
+        accountService.deleteAccount(id, userEmail);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -33,5 +33,21 @@ public interface AccountService {
      */
     AccountResponse getAccountById(Long accountId, String userEmail);
 
-    //TODO: add, update, and delete accounts methods
+    /**
+     * Updates an existing account, ensuring it belongs to the authenticated user.
+     *
+     * @param accountId The ID of the account to update.
+     * @param accountRequest DTO with the new account details.
+     * @param userEmail The email of the authenticated user.
+     * @return The updated account information.
+     */
+    AccountResponse updateAccount(Long accountId, AccountRequest accountRequest, String userEmail);
+
+    /**
+     * Deletes an account, ensuring it belongs to the authenticated user.
+     *
+     * @param accountId The ID of the account to delete.
+     * @param userEmail The email of the authenticated user.
+     */
+    void deleteAccount(Long accountId, String userEmail);
 }

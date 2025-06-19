@@ -30,7 +30,7 @@ public class AccountServiceImpl implements AccountService {
                 .name(accountRequest.getName())
                 .type(accountRequest.getType())
                 .initialBalance(accountRequest.getInitialBalance())
-                .currentBalance(accountRequest.getInitialBalance())
+                .currentBalance(accountRequest.getInitialBalance()) //TODO: handle balance updates based on transactions
                 .currency(accountRequest.getCurrency().toUpperCase())
                 .user(user)
                 .build();
@@ -58,6 +58,32 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "id", accountId));
 
         return mapToAccountResponse(account);
+    }
+
+    @Override
+    @Transactional
+    public AccountResponse updateAccount(Long accountId, AccountRequest accountRequest, String userEmail) {
+        User user = findUserByEmail(userEmail);
+        Account accountToUpdate = accountRepository.findByIdAndUser(accountId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Account", "id", accountId));
+
+        // Not allowing changes to initial balance, type, or currency
+        accountToUpdate.setName(accountRequest.getName());
+
+        Account updatedAccount = accountRepository.save(accountToUpdate);
+
+        return mapToAccountResponse(updatedAccount);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAccount(Long accountId, String userEmail) {
+        User user = findUserByEmail(userEmail);
+        Account accountToDelete = accountRepository.findByIdAndUser(accountId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Account", "id", accountId));
+
+        // TODO: Consider in the future how to handle transactions associated with this account.
+        accountRepository.delete(accountToDelete);
     }
 
     // auxiliary private methods to reuse code and keep public methods cleaner
