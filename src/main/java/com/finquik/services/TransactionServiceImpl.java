@@ -143,6 +143,35 @@ public class TransactionServiceImpl implements TransactionService {
         return mapToTransactionResponse(updatedTransaction);
     }
 
+    @Override
+    @Transactional
+    public void deleteTransaction(Long transactionId, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+
+        Transaction transactionToDelete = transactionRepository.findByIdAndUser(transactionId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction", "id", transactionId));
+
+        Account account = transactionToDelete.getAccount();
+        BigDecimal amount = transactionToDelete.getAmount();
+        CategoryType type = transactionToDelete.getCategory().getType();
+
+        // 1. Revert the impact of the transaction on the account balance.
+        if (type == CategoryType.INCOME) {
+            // If an income transaction is deleted, subtract the amount from the balance.
+            account.setCurrentBalance(account.getCurrentBalance().subtract(amount));
+        } else { // EXPENSE
+            // If an expense transaction is deleted, add the amount back to the balance.
+            account.setCurrentBalance(account.getCurrentBalance().add(amount));
+        }
+
+        // 3. Save the account with the updated balance.
+        accountRepository.save(account);
+
+        // 4. Delete the transaction from the repository.
+        transactionRepository.delete(transactionToDelete);
+    }
+
     // Auxiliary methods to map the entity to the response DTO
     private TransactionResponse mapToTransactionResponse(Transaction transaction) {
         AccountResponse accountResponse = AccountResponse.builder()

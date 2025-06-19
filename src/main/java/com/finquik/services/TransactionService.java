@@ -43,5 +43,11 @@ public interface TransactionService {
      */
     TransactionResponse updateTransaction(Long transactionId, TransactionRequest transactionRequest, String userEmail);
 
-    //TODO: methods for getById, update, and delete transactions will be added later to focus on the main logic.
+    /**
+     * Deletes a transaction by its ID and reverts its impact on the corresponding account balance.
+     *
+     * @param transactionId The ID of the transaction to delete.
+     * @param userEmail The email of the authenticated user.
+     */
+    void deleteTransaction(Long transactionId, String userEmail);
 }
