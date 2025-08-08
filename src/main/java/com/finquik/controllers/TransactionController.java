@@ -2,6 +2,7 @@ package com.finquik.controllers;
 
 import com.finquik.DTOs.TransactionRequest;
 import com.finquik.DTOs.TransactionResponse;
+import com.finquik.DTOs.TransactionSummaryDTO;
 import com.finquik.models.CategoryType;
 import com.finquik.services.TransactionService;
 import jakarta.validation.Valid;
@@ -79,5 +80,11 @@ public class TransactionController {
         String userEmail = authentication.getName();
         transactionService.deleteTransaction(id, userEmail);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<TransactionSummaryDTO> getTransactionSummary() {
+        TransactionSummaryDTO summary = transactionService.getTransactionSummaryForCurrentUser();
+        return ResponseEntity.ok(summary);
     }
 }

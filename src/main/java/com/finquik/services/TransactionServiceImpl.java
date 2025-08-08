@@ -1,10 +1,7 @@
 package com.finquik.services;
 
 import com.finquik.common.exceptions.ResourceNotFoundException;
-import com.finquik.DTOs.AccountResponse;
-import com.finquik.DTOs.CategoryResponse;
-import com.finquik.DTOs.TransactionRequest;
-import com.finquik.DTOs.TransactionResponse;
+import com.finquik.DTOs.*;
 import com.finquik.models.*;
 import com.finquik.repositories.AccountRepository;
 import com.finquik.repositories.CategoryRepository;
@@ -15,8 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.finquik.security.CustomUserDetails;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,8 +31,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    @Transactional // all the operations in this method are part of a single transaction
+    @Transactional
     public TransactionResponse createTransaction(TransactionRequest transactionRequest, String userEmail) {
+
         // 1. Get the user, account, and category based on the request
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
@@ -71,6 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional(readOnly = true)
     public Page<TransactionResponse> getTransactions(String userEmail, Pageable pageable, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type) {
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
 
@@ -102,6 +104,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional(readOnly = true)
     public TransactionResponse getTransactionById(Long transactionId, String userEmail) {
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
 
@@ -114,6 +117,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public TransactionResponse updateTransaction(Long transactionId, TransactionRequest transactionRequest, String userEmail) {
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
 
@@ -167,6 +171,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public void deleteTransaction(Long transactionId, String userEmail) {
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
 
@@ -193,8 +198,24 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.delete(transactionToDelete);
     }
 
+    @Override
+    public TransactionSummaryDTO getTransactionSummaryForCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!(principal instanceof CustomUserDetails customUserDetails)) {
+            throw new UsernameNotFoundException("User details not found in security context");
+        }
+
+        User currentUser = customUserDetails.getUser();
+
+        return transactionRepository.getTransactionSummaryByUserId(currentUser.getId())
+                .orElse(new TransactionSummaryDTO(BigDecimal.ZERO, BigDecimal.ZERO));
+    }
+
+
     // Auxiliary methods to map the entity to the response DTO
     private TransactionResponse mapToTransactionResponse(Transaction transaction) {
+
         AccountResponse accountResponse = AccountResponse.builder()
                 .id(transaction.getAccount().getId())
                 .name(transaction.getAccount().getName())

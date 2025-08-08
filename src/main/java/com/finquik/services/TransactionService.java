@@ -2,6 +2,7 @@ package com.finquik.services;
 
 import com.finquik.DTOs.TransactionRequest;
 import com.finquik.DTOs.TransactionResponse;
+import com.finquik.DTOs.TransactionSummaryDTO;
 import com.finquik.models.CategoryType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,4 +60,10 @@ public interface TransactionService {
      * @param userEmail The email of the authenticated user.
      */
     void deleteTransaction(Long transactionId, String userEmail);
+
+    /**
+     * Retrieves a summary of total income and expenses for the currently authenticated user.
+     * @return A DTO containing the total income and expenses.
+     */
+    TransactionSummaryDTO getTransactionSummaryForCurrentUser();
 }
