@@ -14,6 +14,7 @@ public class TransactionResponse {
     private Long id;
     private BigDecimal amount;
     private String description;
+    private String iconName;
     private LocalDate transactionDate;
 
     // Instead of giving back id, we return the full object

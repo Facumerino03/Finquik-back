@@ -2,7 +2,6 @@ package com.finquik.DTOs;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -25,4 +24,7 @@ public class TransactionRequest {
 
     @NotNull(message = "Category ID cannot be null")
     private Long categoryId;
+
+    @Size(max = 100, message = "Icon name can be up to 100 characters long")
+    private String iconName;
 }

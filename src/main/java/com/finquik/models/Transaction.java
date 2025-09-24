@@ -34,6 +34,9 @@ public class Transaction {
     @Column(length = 255)
     private String description;
 
+    @Column(name = "icon_name", length = 100)
+    private String iconName;
+
     @Column(nullable = false, name = "transaction_date")
     private LocalDate transactionDate;
 
