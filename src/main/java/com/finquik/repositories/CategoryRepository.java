@@ -43,4 +43,13 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      * @return true if a matching category exists, false otherwise.
      */
     boolean existsByNameAndUserAndType(String name, User user, CategoryType type);
+
+    /**
+     * Finds all categories belonging to a specific user and matching a specific type.
+     *
+     * @param user The user whose categories to find.
+     * @param type The type of the category (INCOME or EXPENSE).
+     * @return A list of categories for the given user and type.
+     */
+    List<Category> findByUserAndType(User user, CategoryType type);
 }

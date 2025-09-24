@@ -2,6 +2,7 @@ package com.finquik.controllers;
 
 import com.finquik.DTOs.CategoryRequest;
 import com.finquik.DTOs.CategoryResponse;
+import com.finquik.models.CategoryType;
 import com.finquik.services.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,12 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getUserCategories(Authentication authentication) {
+    public ResponseEntity<List<CategoryResponse>> getUserCategories(
+            Authentication authentication,
+            @RequestParam(required = false) CategoryType type) {
+
         String userEmail = authentication.getName();
-        List<CategoryResponse> categories = categoryService.getCategoriesByUser(userEmail);
+        List<CategoryResponse> categories = categoryService.getCategoriesByUser(userEmail, type);
         return ResponseEntity.ok(categories);
     }
 

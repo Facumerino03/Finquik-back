@@ -6,6 +6,7 @@ import com.finquik.DTOs.CategoryRequest;
 import com.finquik.DTOs.CategoryResponse;
 import com.finquik.models.Category;
 import com.finquik.models.User;
+import com.finquik.models.CategoryType;
 import com.finquik.repositories.CategoryRepository;
 import com.finquik.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +45,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryResponse> getCategoriesByUser(String userEmail) {
+    public List<CategoryResponse> getCategoriesByUser(String userEmail, CategoryType type) {
         User user = findUserByEmail(userEmail);
-        return categoryRepository.findByUser(user).stream()
+        List<Category> categories;
+
+        if (type != null) {
+            categories = categoryRepository.findByUserAndType(user, type);
+        } else {
+            categories = categoryRepository.findByUser(user);
+        }
+
+        return categories.stream()
                 .map(this::mapToCategoryResponse)
                 .collect(Collectors.toList());
     }
