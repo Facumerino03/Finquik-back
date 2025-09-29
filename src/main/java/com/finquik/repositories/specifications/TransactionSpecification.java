@@ -57,4 +57,16 @@ public class TransactionSpecification {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.lessThanOrEqualTo(root.get("transactionDate"), endDate);
     }
+
+    /**
+     * Specification to filter transactions by a description containing a specific text (case-insensitive).
+     */
+    public static Specification<Transaction> descriptionContains(String text) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("description")),
+                        "%" + text.toLowerCase() + "%"
+                );
+    }
+
 }

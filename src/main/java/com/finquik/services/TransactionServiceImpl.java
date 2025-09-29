@@ -72,7 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<TransactionResponse> getTransactions(String userEmail, Pageable pageable, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type) {
+    public Page<TransactionResponse> getTransactions(String userEmail, Pageable pageable, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type, String description) {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
@@ -95,10 +95,12 @@ public class TransactionServiceImpl implements TransactionService {
             spec = spec.and(TransactionSpecification.hasType(type));
         }
 
-        // 2. Ejecutamos la consulta paginada del repositorio
+        if (description != null && !description.isBlank()) {
+            spec = spec.and(TransactionSpecification.descriptionContains(description));
+        }
+
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
-        // 3. Mapeamos el contenido de la página a nuestro DTO de respuesta
         return transactionPage.map(this::mapToTransactionResponse);
     }
 

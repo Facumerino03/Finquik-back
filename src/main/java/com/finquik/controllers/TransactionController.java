@@ -3,6 +3,7 @@ package com.finquik.controllers;
 import com.finquik.DTOs.TransactionRequest;
 import com.finquik.DTOs.TransactionResponse;
 import com.finquik.DTOs.TransactionSummaryDTO;
+import com.finquik.DTOs.PageResponse;
 import com.finquik.models.CategoryType;
 import com.finquik.services.TransactionService;
 import jakarta.validation.Valid;
@@ -35,20 +36,23 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<TransactionResponse>> getUserTransactions(
+    public ResponseEntity<PageResponse<TransactionResponse>> getUserTransactions(
             Authentication authentication,
             Pageable pageable,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) Long accountId,
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) CategoryType type) {
+            @RequestParam(required = false) CategoryType type,
+            @RequestParam(required = false) String description) {
 
         String userEmail = authentication.getName();
-        Page<TransactionResponse> transactions = transactionService.getTransactions(
-                userEmail, pageable, startDate, endDate, accountId, categoryId, type);
+        Page<TransactionResponse> transactionsPage = transactionService.getTransactions(
+                userEmail, pageable, startDate, endDate, accountId, categoryId, type, description);
 
-        return ResponseEntity.ok(transactions);
+        PageResponse<TransactionResponse> response = new PageResponse<>(transactionsPage);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

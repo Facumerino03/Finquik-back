@@ -32,7 +32,7 @@ public interface TransactionService {
      * @param type      Optional transaction type (INCOME or EXPENSE) to filter by.
      * @return A page of transaction information.
      */
-    Page<TransactionResponse> getTransactions(String userEmail, Pageable pageable, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type);
+    Page<TransactionResponse> getTransactions(String userEmail, Pageable pageable, LocalDate startDate, LocalDate endDate, Long accountId, Long categoryId, CategoryType type, String description);
 
     /**
      * Retrieves a single transaction by its ID, ensuring it belongs to the authenticated user.
