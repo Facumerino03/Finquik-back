@@ -36,6 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = Category.builder()
                 .name(categoryRequest.getName())
                 .type(categoryRequest.getType())
+                .iconName(categoryRequest.getIconName())
                 .user(user)
                 .build();
 
@@ -113,6 +114,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .id(category.getId())
                 .name(category.getName())
                 .type(category.getType())
+                .iconName(category.getIconName())
                 .build();
     }
 }

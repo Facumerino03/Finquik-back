@@ -15,4 +15,7 @@ public class CategoryRequest {
 
     @NotNull(message = "Category type cannot be null")
     private CategoryType type;
+
+    @Size(max = 100, message = "Icon name cannot exceed 100 characters")
+    private String iconName;
 }

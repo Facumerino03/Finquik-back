@@ -33,6 +33,9 @@ public class Category {
     @Column(nullable = false, length = 50)
     private CategoryType type;
 
+    @Column(name = "icon_name", length = 100)
+    private String iconName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
